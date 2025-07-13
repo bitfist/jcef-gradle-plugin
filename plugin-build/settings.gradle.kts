@@ -22,7 +22,7 @@ pluginManagement {
 		}
     }
 	plugins {
-		id("io.github.bitfist.github.release") version "0.1.4"
+		id("io.github.bitfist.github.release") version "0.1.5"
 	}
 }
 
