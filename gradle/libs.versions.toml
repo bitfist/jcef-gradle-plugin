@@ -1,7 +1,7 @@
 [versions]
 kotlin               = "2.2.0"
 springBoot           = "3.5.3"
-jcef                 = "0.1.3"
+jcef                 = "0.2.1"
 dependencyManagement = "1.1.7"
 junit5               = "5.13.3"
 
