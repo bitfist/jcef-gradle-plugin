@@ -13,5 +13,6 @@ repositories {
 
 jcef {
 	typescriptOutputPath.set(projectDir.resolve("src/main/webapp"))
+	developmentMode.set(true)
 }
 

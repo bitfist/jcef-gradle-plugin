@@ -1,6 +1,7 @@
 package io.github.bitfist.jcef.gradle
 
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.testfixtures.ProjectBuilder
@@ -97,20 +98,25 @@ class JcefPluginTest {
 
 	/**
 	 * Verifies that the plugin configures all JavaCompile tasks to use UTF-8
-	 * and passes the '-parameters' and jcef.output.path flags.
+	 * and passes the '-parameters' and correct jcef.output.* flags.
 	 */
 	@Test
-	fun `apply-by-id configures JavaCompile options`() {
-		val project = ProjectBuilder.builder().build()
+	fun `apply-by-id in development mode configures JavaCompile options`() {
+		val project = ProjectBuilder.builder().build() as ProjectInternal
 		// Apply plugin via its ID
 		project.pluginManager.apply("io.github.bitfist.jcef")
 
 		// Pre-set extension so configureJava() runs safely
 		project.extensions.configure(JcefExtension::class.java) {
 			it.typescriptOutputPath.set(project.layout.buildDirectory.dir("ts-output").get().asFile)
+			it.developmentMode.set(true)
+			it.developmentHost.set("http://localhost2")
+			it.developmentPort.set(3001)
 		}
 
 		project.pluginManager.apply("io.github.bitfist.jcef")
+
+		project.evaluate()
 
 		// Grab the compileJava task
 		val compileTask = project.tasks.findByName("compileJava") as JavaCompile?
@@ -122,9 +128,42 @@ class JcefPluginTest {
 		// Check compiler arguments
 		val args = compileTask.options.compilerArgs
 		assertTrue(args.contains("-parameters"), "Compiler args must contain '-parameters'")
-		assertTrue(
-			args.any { it.startsWith("-Ajcef.output.path=") },
-			"Compiler args must contain the jcef.output.path flag"
-		)
+		assertTrue(args.any { it.startsWith("-Ajcef.output.path=") }, "Compiler args must contain the jcef.output.path flag")
+		assertTrue(args.any { it.equals("-Ajcef.output.service.type=web") }, "Compiler args must contain the jcef.output.service.type flag")
+		assertTrue(args.any { it.equals("-Ajcef.output.web.host=http://localhost2") }, "Compiler args must contain the jcef.output.web.host flag")
+		assertTrue(args.any { it.equals("-Ajcef.output.web.port=3001") }, "Compiler args must contain the jcef.output.web.port flag")
+	}
+
+	/**
+	 * Verifies that the plugin configures all JavaCompile tasks to use UTF-8
+	 * and passes the '-parameters' and correct jcef.output.* flags.
+	 */
+	@Test
+	fun `apply-by-id mode configures JavaCompile options`() {
+		val project = ProjectBuilder.builder().build() as ProjectInternal
+		// Apply plugin via its ID
+		project.pluginManager.apply("io.github.bitfist.jcef")
+
+		// Pre-set extension so configureJava() runs safely
+		project.extensions.configure(JcefExtension::class.java) {
+			it.typescriptOutputPath.set(project.layout.buildDirectory.dir("ts-output").get().asFile)
+		}
+
+		project.pluginManager.apply("io.github.bitfist.jcef")
+
+		project.evaluate()
+
+		// Grab the compileJava task
+		val compileTask = project.tasks.findByName("compileJava") as JavaCompile?
+		assertNotNull(compileTask, "compileJava task should exist")
+
+		// Check encoding
+		assertEquals("UTF-8", compileTask!!.options.encoding, "Compiler encoding must be UTF-8")
+
+		// Check compiler arguments
+		val args = compileTask.options.compilerArgs
+		assertTrue(args.contains("-parameters"), "Compiler args must contain '-parameters'")
+		assertTrue(args.any { it.startsWith("-Ajcef.output.path=") }, "Compiler args must contain the jcef.output.path flag")
+		assertTrue(args.any { it.equals("-Ajcef.output.service.type=query") }, "Compiler args must contain the jcef.output.service.type flag")
 	}
 }

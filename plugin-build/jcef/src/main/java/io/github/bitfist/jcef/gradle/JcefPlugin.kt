@@ -76,14 +76,27 @@ abstract class JcefPlugin : Plugin<Project> {
 	}
 
 	private fun configureJava(project: Project, extension: JcefExtension) {
-		project.tasks.withType(JavaCompile::class.java).configureEach {
-			it.options.encoding = "UTF-8"
-			it.options.compilerArgs.addAll(
-				listOf(
-					"-parameters",
-					"-Ajcef.output.path=${extension.typescriptOutputPath.get().absolutePath}"
+		project.afterEvaluate {
+			project.tasks.withType(JavaCompile::class.java).configureEach { compile ->
+				compile.options.encoding = "UTF-8"
+				if (extension.developmentMode.get()) {
+					compile.options.compilerArgs.addAll(
+						listOf(
+							"-Ajcef.output.service.type=web",
+							"-Ajcef.output.web.host=${extension.developmentHost.get()}",
+							"-Ajcef.output.web.port=${extension.developmentPort.get()}",
+						)
+					)
+				} else {
+					compile.options.compilerArgs.add("-Ajcef.output.service.type=query")
+				}
+				compile.options.compilerArgs.addAll(
+					listOf(
+						"-parameters",
+						"-Ajcef.output.path=${extension.typescriptOutputPath.get().asFile.absolutePath}"
+					)
 				)
-			)
+			}
 		}
 	}
 }

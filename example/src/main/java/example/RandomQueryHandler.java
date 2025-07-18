@@ -1,13 +1,12 @@
 package example;
 
-import io.github.bitfist.jcef.spring.query.CefQueryHandler;
-import io.github.bitfist.jcef.spring.query.TypeScriptConfiguration;
+import io.github.bitfist.jcef.spring.tsobject.TypeScriptConfiguration;
+import io.github.bitfist.jcef.spring.tsobject.TypeScriptObject;
 
-@CefQueryHandler
-@TypeScriptConfiguration(packageName = "test.example")
+@TypeScriptObject
+@TypeScriptConfiguration(path = "test/example")
 class RandomQueryHandler {
 
-	@CefQueryHandler("simple")
 	int simpleQuery(String query) {
 		return (int)(Math.random() * 100);
 	}
