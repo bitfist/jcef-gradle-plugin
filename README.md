@@ -70,6 +70,11 @@ Configure the output path for generated TypeScript files:
 ```kotlin
 jcef {
 	typescriptOutputPath.set(file("$buildDir/generated/typescript"))
+	// turns on CEF query calls through REST
+	developmentMode.set(true)
+	// application host
+	developmentHost.set("localhost")
+	developmentPort.set(8080)
 }
 ```
 
@@ -79,12 +84,16 @@ jcef {
 
 The plugin automatically:
 
-1. Applies `java` and `org.springframework.boot` plugins
+1. Applies and configures `java` and `org.springframework.boot` plugins
 2. Imports Spring Boot BOM for dependency management
 3. Adds dependencies:
 	- `io.github.bitfist:jcef-spring-boot-starter:<jcefVersion>`
 	- Annotation processors for JCEF and Spring Boot
-4. Configures Java compilation with `-Ajcef.output.path` pointing to your configured `typescriptOutputPath`
+4. Configures Java compilation with:
+	- `-Ajcef.output.path` pointing to your configured `typescriptOutputPath`
+	- `-Ajcef.output.service.type` indicating processing of method calls through `WEB` or `QUERY`
+	- `-Ajcef.output.web.host` indicating the host to call in the case of `jcef.output.service.type` being `WEB`
+	- `-Ajcef.output.web.port` indicating the port to call in the case of `jcef.output.service.type` being `WEB`
 
 ---
 

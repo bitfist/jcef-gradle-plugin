@@ -14,5 +14,5 @@ constructor(project: Project) {
 	val typescriptOutputPath: RegularFileProperty = objects.fileProperty()
 	val developmentMode: Property<Boolean> = objects.property(Boolean::class.java).convention(false)
 	val developmentHost: Property<String> = objects.property(String::class.java).convention("http://localhost")
-	val developmentPort: Property<Int> = objects.property(Int::class.java).convention(3000)
+	val developmentPort: Property<Int> = objects.property(Int::class.java).convention(8080)
 }

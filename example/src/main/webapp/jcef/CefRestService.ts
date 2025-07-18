@@ -4,7 +4,7 @@ import {ResponseValueConverter} from "./ResponseValueConverter";
 
 export class CefRestService {
     static request<T>(className: string, methodName: string, parameters: object, responseType: ResponseType): Promise<any> {
-        const targetUrl = 'http://localhost:3000';
+        const targetUrl = 'http://localhost:8080';
 
         const requestBody = {
             className,

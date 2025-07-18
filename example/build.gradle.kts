@@ -14,5 +14,7 @@ repositories {
 jcef {
 	typescriptOutputPath.set(projectDir.resolve("src/main/webapp"))
 	developmentMode.set(true)
+	developmentHost.set("http://localhost")
+	developmentPort.set(8080)
 }
 
