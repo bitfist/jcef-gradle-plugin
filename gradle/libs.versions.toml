@@ -1,15 +1,12 @@
 [versions]
-kotlin               = "2.2.0"
-springBoot           = "3.5.3"
-jcef                 = "0.4.0"
-dependencyManagement = "1.1.7"
-junit5               = "5.13.3"
+springBoot = "3.5.3"
+jcef       = "0.4.0"
 
 [plugins]
-kotlin = { id = "org.jetbrains.kotlin.jvm",  version.ref = "kotlin" }
+kotlin = { id = "org.jetbrains.kotlin.jvm",  version = "2.2.0" }
 
 [libraries]
-junit5Bom            = { module = "org.junit:junit-bom",                                version.ref = "junit5"       }
-springBootPlugin     = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "springBoot"   }
-springJCEF           = { module = "io.github.bitfist:jcef-spring-boot-starter"        , version.ref = "jcef"         }
-dependencyManagement = { module = "io.spring.dependency-management:io.spring.dependency-management.gradle.plugin", version.ref = "dependencyManagement" }
+plugin-dependencyManagement = { module = "io.spring.dependency-management:io.spring.dependency-management.gradle.plugin", version     = "1.1.7"      }
+plugin-springBoot           = { module = "org.springframework.boot:spring-boot-gradle-plugin",                            version.ref = "springBoot" }
+springJCEF                   = { module = "io.github.bitfist:jcef-spring-boot-starter"        ,                            version.ref = "jcef"       }
+test-junit5Bom               = { module = "org.junit:junit-bom",                                                           version     = "5.13.3"     }

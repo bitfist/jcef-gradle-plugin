@@ -12,10 +12,10 @@ plugins {
 dependencies {
 	implementation(kotlin("stdlib"))
 	implementation(gradleApi())
-	implementation(libs.springBootPlugin)
-	implementation(libs.dependencyManagement)
+	implementation(libs.plugin.springBoot)
+	implementation(libs.plugin.dependencyManagement)
 
-	testImplementation(platform(libs.junit5Bom))
+	testImplementation(platform(libs.test.junit5Bom))
 	testImplementation("org.junit.jupiter:junit-jupiter-api")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
