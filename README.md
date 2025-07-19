@@ -13,6 +13,18 @@ The JCEF Gradle Plugin simplifies integrating the Java Chromium Embedded Framewo
 
 ---
 
+Table of contents
+=================
+* [Features](#-features)
+* [Installation](#-installation)
+  * [in settings.gradle.kts](#-in-settingsgradlekts)
+  * [in build.gradle.kts](#-in-buildgradlekts)
+* [Configuration](#-configuration)
+* [Usage](#-usage)
+* [Example](#-example)
+
+---
+
 ## ⚙️ **Features**
 
 - Applies `java` and `org.springframework.boot` plugins automatically
