@@ -39,7 +39,7 @@ val generateVersionProperties by tasks.registering(WriteProperties::class) {
 	destinationFile.set(layout.buildDirectory.file("resources/main/versions.properties"))
 
 	property("springBoot", libs.versions.springBoot.get())
-	property("jcef", libs.versions.jcef.get())
+	property("springJcef", libs.versions.springJcef.get())
 }
 
 tasks.named("processResources") {

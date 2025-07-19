@@ -26,10 +26,13 @@ import java.util.Properties
  * This plugin expects a properties file named `versions.properties` on the classpath
  * containing dependency version definitions for keys like `jcef` and `springBoot`.
  */
+
+const val EXTENSION_NAME = "springJcef"
+
 @Suppress("UnnecessaryAbstractClass")
 abstract class JcefPlugin : Plugin<Project> {
 	override fun apply(project: Project) {
-		val extension = project.extensions.create("jcef", JcefExtension::class.java, project)
+		val extension = project.extensions.create(EXTENSION_NAME, JcefExtension::class.java, project)
 		applyPlugins(project)
 		applyDependencyManagement(project)
 		addDependencies(project)
@@ -58,12 +61,12 @@ abstract class JcefPlugin : Plugin<Project> {
 
 	private fun addDependencies(project: Project) {
 		val versions = loadVersions()
-		val jcefVersion = versions.getProperty("jcef") ?: throw GradleException("Property 'jcef' not found in versions.properties")
+		val springJcefVersion = versions.getProperty("springJcef") ?: throw GradleException("Property 'springJcef' not found in versions.properties")
 		val springBootVersion = versions.getProperty("springBoot") ?: throw GradleException("Property 'springBoot' not found in versions.properties")
 
 		project.dependencies.apply {
-			add("implementation", "io.github.bitfist:jcef-spring-boot-starter:$jcefVersion")
-			add("annotationProcessor", "io.github.bitfist:jcef-spring-boot-starter:$jcefVersion")
+			add("implementation", "io.github.bitfist:jcef-spring-boot-starter:$springJcefVersion")
+			add("annotationProcessor", "io.github.bitfist:jcef-spring-boot-starter:$springJcefVersion")
 			add("annotationProcessor", "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion")
 		}
 	}

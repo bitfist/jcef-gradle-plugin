@@ -11,7 +11,7 @@ repositories {
 	mavenCentral()
 }
 
-jcef {
+springJcef {
 	typescriptOutputPath.set(projectDir.resolve("src/main/webapp"))
 	developmentMode.set(true)
 	developmentHost.set("http://localhost")

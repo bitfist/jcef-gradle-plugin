@@ -33,7 +33,7 @@ class JcefPluginTest {
 		}
 
 		// 1) Extension exists
-		val ext = project.extensions.findByName("jcef")
+		val ext = project.extensions.findByName(EXTENSION_NAME)
 		assertNotNull(ext, "The 'jcef' extension should be registered")
 		assertTrue(ext is JcefExtension, "Extension must be a JcefExtension")
 
