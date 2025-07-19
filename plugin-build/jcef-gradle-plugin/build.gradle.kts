@@ -2,6 +2,7 @@ import git.semver.plugin.gradle.GitSemverPluginExtension
 import git.semver.plugin.gradle.ReleaseTask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URI
 
 plugins {
 	kotlin("jvm")
@@ -80,4 +81,7 @@ gitHubRelease {
 	projectName.set("JCEF Gradle plugin")
 	projectDescription.set("Gradle plugin for jcef-spring-boot-starter")
 	developer.set("bitfist")
+	licenseFile.set(rootProject.projectDir.resolve("../LICENSE.txt"))
+	license.set("The Apache License, Version 2.0")
+	licenseUri.set(URI("https://www.apache.org/licenses/LICENSE-2.0"))
 }
