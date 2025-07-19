@@ -70,7 +70,7 @@ pluginManagement {
 ### 📋 **in build.gradle.kts**
 ```kotlin
 plugins {
-	id("io.github.bitfist.jcef")
+	id("io.github.bitfist.jcef-gradle-plugin")
 }
 ```
 
