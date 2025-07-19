@@ -7,9 +7,11 @@
 
 # JCEF Gradle Plugin
 
-## 🚀 **Overview**
-
 The JCEF Gradle Plugin simplifies integrating the Java Chromium Embedded Framework (JCEF) with Spring Boot applications.
+
+> [!IMPORTANT]
+> This project uses dependencies provided from GitHub. You therefore need to set your GitHub user `GPR_USER` and
+> personal access token `GPR_TOKEN` in your `~/.gradle/gradle.properties`
 
 ---
 
@@ -64,8 +66,6 @@ pluginManagement {
 	}
 }
 ```
-
-❌ Remember to set your GitHub user `GPR_USER` and GitHub Access Token `GPR_KEY` in `~/.gradle/gradle.properties`
 
 ### 📋 **in build.gradle.kts**
 ```kotlin
