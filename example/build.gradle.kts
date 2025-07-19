@@ -1,8 +1,8 @@
 import io.github.bitfist.github.repository.gitHub
 
 plugins {
-	id("io.github.bitfist.github.repository")
-	id("io.github.bitfist.jcef")
+	id("io.github.bitfist.gradle-github-support.repository")
+	id("io.github.bitfist.jcef-gradle-plugin")
 }
 
 repositories {

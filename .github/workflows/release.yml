@@ -32,26 +32,26 @@ jobs:
       - name: Run tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :plugin-build:jcef:test
+        run: ./gradlew :plugin-build:jcef-gradle-plugin:test
       - name: Create release tag & changelog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew :plugin-build:jcef:releaseVersion --no-commit
+          ./gradlew :plugin-build:jcef-gradle-plugin:releaseVersion --no-commit
           git push origin --tags
           echo "RELEASE_VERSION=$(git tag --points-at HEAD)" >> $GITHUB_ENV
       - name: Build JAR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew :plugin-build:jcef:clean
-          ./gradlew :plugin-build:jcef:build :plugin-build:jcef:jar -x test
+          ./gradlew :plugin-build:jcef-gradle-plugin:clean
+          ./gradlew :plugin-build:jcef-gradle-plugin:build :plugin-build:jcef-gradle-plugin:jar -x test
       - name: Publish Maven artifacts to GitHub Packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :plugin-build:jcef:publishAllPublicationsToGitHubPackagesRepository
+        run: ./gradlew :plugin-build:jcef-gradle-plugin:publishAllPublicationsToGitHubPackagesRepository
       - name: Create GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "plugin-build/jcef/build/libs/*.jar"
+          artifacts: "plugin-build/jcef-gradle-plugin/build/libs/*.jar"
           tag: ${{ env.RELEASE_VERSION }}

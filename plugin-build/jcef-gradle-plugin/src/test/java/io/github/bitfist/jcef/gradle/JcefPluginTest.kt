@@ -25,7 +25,7 @@ class JcefPluginTest {
 		val project = ProjectBuilder.builder().build()
 
 		// Apply plugin via its ID
-		project.pluginManager.apply("io.github.bitfist.jcef")
+		project.pluginManager.apply("io.github.bitfist.jcef-gradle-plugin")
 
 		// Pre-configure the extension so configureJava won't fail
 		project.extensions.configure(JcefExtension::class.java) {
@@ -70,7 +70,7 @@ class JcefPluginTest {
 	fun `apply-by-id adds expected dependencies`() {
 		val project = ProjectBuilder.builder().build()
 		// Apply plugin via its ID
-		project.pluginManager.apply("io.github.bitfist.jcef")
+		project.pluginManager.apply("io.github.bitfist.jcef-gradle-plugin")
 
 		// Ensure extension is set so plugin.apply doesn’t fail
 		project.extensions.configure(JcefExtension::class.java) {
@@ -104,7 +104,7 @@ class JcefPluginTest {
 	fun `apply-by-id in development mode configures JavaCompile options`() {
 		val project = ProjectBuilder.builder().build() as ProjectInternal
 		// Apply plugin via its ID
-		project.pluginManager.apply("io.github.bitfist.jcef")
+		project.pluginManager.apply("io.github.bitfist.jcef-gradle-plugin")
 
 		// Pre-set extension so configureJava() runs safely
 		project.extensions.configure(JcefExtension::class.java) {
@@ -114,7 +114,7 @@ class JcefPluginTest {
 			it.developmentPort.set(3001)
 		}
 
-		project.pluginManager.apply("io.github.bitfist.jcef")
+		project.pluginManager.apply("io.github.bitfist.jcef-gradle-plugin")
 
 		project.evaluate()
 
@@ -142,14 +142,14 @@ class JcefPluginTest {
 	fun `apply-by-id mode configures JavaCompile options`() {
 		val project = ProjectBuilder.builder().build() as ProjectInternal
 		// Apply plugin via its ID
-		project.pluginManager.apply("io.github.bitfist.jcef")
+		project.pluginManager.apply("io.github.bitfist.jcef-gradle-plugin")
 
 		// Pre-set extension so configureJava() runs safely
 		project.extensions.configure(JcefExtension::class.java) {
 			it.typescriptOutputPath.set(project.layout.buildDirectory.dir("ts-output").get().asFile)
 		}
 
-		project.pluginManager.apply("io.github.bitfist.jcef")
+		project.pluginManager.apply("io.github.bitfist.jcef-gradle-plugin")
 
 		project.evaluate()
 

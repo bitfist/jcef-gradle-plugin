@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	kotlin("jvm")
 	`java-gradle-plugin`
-	id("io.github.bitfist.github.release")
+	id("io.github.bitfist.gradle-github-support.release")
 }
 
 dependencies {
@@ -53,17 +53,17 @@ tasks.withType<KotlinCompile> {
 
 gradlePlugin {
 	plugins {
-		create(property("ID").toString()) {
-			id = property("ID").toString()
-			implementationClass = property("IMPLEMENTATION_CLASS").toString()
+		create("io.github.bitfist.jcef-gradle-plugin") {
+			id = "io.github.bitfist.jcef-gradle-plugin"
+			implementationClass = "io.github.bitfist.jcef.gradle.JcefPlugin"
 			version = project.version
-			description = property("DESCRIPTION").toString()
-			displayName = property("DISPLAY_NAME").toString()
+			description = "JCEF Gradle plugin for jcef-spring-boot-starter"
+			displayName = "JCEF Gradle plugin"
 			tags.set(listOf("CEF", "JCEF", "Chromium Embedded", "Browser"))
 		}
 	}
-	website.set(property("WEBSITE").toString())
-	vcsUrl.set(property("VCS_URL").toString())
+	website.set("https://github.com/bitfist/jcef-gradle-plugin")
+	vcsUrl.set("https://github.com/bitfist/jcef-gradle-plugin")
 }
 
 // endregion

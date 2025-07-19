@@ -22,7 +22,7 @@ pluginManagement {
 		}
     }
 	plugins {
-		id("io.github.bitfist.github.release") version "0.1.5"
+		id("io.github.bitfist.gradle-github-support.release") version "0.2.2"
 	}
 }
 
@@ -39,4 +39,4 @@ dependencyResolutionManagement {
     }
 }
 
-include(":jcef")
+include(":jcef-gradle-plugin")

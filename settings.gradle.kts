@@ -21,7 +21,7 @@ pluginManagement {
 		}
     }
 	plugins {
-		id("io.github.bitfist.github.repository") version "0.4.5"
+		id("io.github.bitfist.gradle-github-support.repository") version "0.2.2"
 	}
 }
 
