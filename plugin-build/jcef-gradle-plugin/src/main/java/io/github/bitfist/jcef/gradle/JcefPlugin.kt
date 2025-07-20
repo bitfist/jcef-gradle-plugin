@@ -91,6 +91,8 @@ abstract class JcefPlugin : Plugin<Project> {
 			project.afterEvaluate {
 				if (extension.webCommunication.isPresent) {
 					add("implementation", "org.springframework.boot:spring-boot-starter-web")
+				} else {
+					add("implementation", "org.springframework.boot:spring-boot-starter")
 				}
 			}
 		}
