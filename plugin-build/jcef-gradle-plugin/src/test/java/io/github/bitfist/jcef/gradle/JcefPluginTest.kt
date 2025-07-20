@@ -1,10 +1,10 @@
 package io.github.bitfist.jcef.gradle
 
+import io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
@@ -25,10 +25,12 @@ class JcefPluginTest {
 		val project = buildProject()
 		project.pluginManager.apply(JcefPlugin::class.java)
 
+		project.evaluate()
+
 		// Check that JavaPlugin and SpringBootPlugin applied
 		assertTrue(project.plugins.hasPlugin(JavaPlugin::class.java), "JavaPlugin should be applied")
 		assertTrue(project.plugins.hasPlugin(SpringBootPlugin::class.java), "SpringBootPlugin should be applied")
-		assertTrue(project.plugins.hasPlugin("io.spring.dependency-management"), "Dependency Management plugin should be applied")
+		assertTrue(project.plugins.hasPlugin(DependencyManagementPlugin::class.java), "Dependency Management plugin should be applied")
 
 		// Extension exists
 		val ext = project.extensions.findByName("springJcef")
@@ -41,14 +43,11 @@ class JcefPluginTest {
 	fun `spring boot dependency management is configured`() {
 		val project = buildProject()
 		project.pluginManager.apply(JcefPlugin::class.java)
+		project.extensions.getByType(SpringBootExtension::class.java)
 
-		// After applying plugin, dependencies should include Spring Boot BOM and processor
-		val bootExt = project.extensions.getByType(SpringBootExtension::class.java)
-		// buildInfo task should be configured without throwing
+		project.evaluate()
 
-		val annotationProcessorDeps = project.configurations.findByName("annotationProcessor")!!.dependencies
-		assertTrue(annotationProcessorDeps.any { it.group == "org.springframework.boot" && it.name.contains("autoconfigure-processor") },
-		"annotationProcessor should contain spring-boot-autoconfigure-processor")
+		assertDependencyRegistered(project, "org.springframework.boot", "spring-boot-autoconfigure-processor", "annotationProcessor")
 		assertNotNull(project.tasks.named("bootBuildInfo"), "bootBuildInfo task should be registered")
 	}
 
@@ -58,13 +57,10 @@ class JcefPluginTest {
 		val project = buildProject()
 		project.pluginManager.apply(JcefPlugin::class.java)
 
-		val implDeps = project.configurations.getByName("implementation").dependencies
-		assertTrue(implDeps.any { it.group == "io.github.bitfist" && it.name == "jcef-spring-boot-starter" },
-			"implementation should contain jcef-spring-boot-starter")
+		project.evaluate()
 
-		val annDeps = project.configurations.getByName("annotationProcessor").dependencies
-		assertTrue(annDeps.any { it.group == "io.github.bitfist" && it.name == "jcef-spring-boot-starter" },
-			"annotationProcessor should contain jcef-spring-boot-starter")
+		assertDependencyRegistered(project, "io.github.bitfist", "jcef-spring-boot-starter")
+		assertDependencyRegistered(project, "io.github.bitfist", "jcef-spring-boot-starter", "annotationProcessor")
 	}
 
 	@Test
@@ -74,8 +70,8 @@ class JcefPluginTest {
 		project.pluginManager.apply(JcefPlugin::class.java)
 		val ext = project.extensions.getByType(JcefExtension::class.java)
 		ext.typescriptOutputPath.set(project.layout.buildDirectory.asFile.get().resolve("generated-ts"))
-
 		// Leave developmentMode as default (false)
+
 		project.evaluate()
 
 		val javaCompile = project.tasks.withType(JavaCompile::class.java).first()
@@ -87,27 +83,34 @@ class JcefPluginTest {
 	}
 
 	@Test
-	@DisplayName("🚧 JavaCompile Options - Development Mode")
+	@DisplayName("🚧 Development Mode")
 	fun `java compile tasks have correct args in development mode`() {
 		val project = buildProject()
 		project.pluginManager.apply(JcefPlugin::class.java)
 		val ext = project.extensions.getByType(JcefExtension::class.java)
 
+		ext.typescriptOutputPath.set(project.layout.buildDirectory.asFile.get().resolve("generated-ts"))
 		// Enable developmentMode
 		ext.developmentMode.set(true)
-		ext.developmentHost.set("localhost")
-		ext.developmentPort.set(8080)
-		ext.typescriptOutputPath.set(project.layout.buildDirectory.asFile.get().resolve("generated-ts"))
 
 		project.evaluate()
 
 		val javaCompile = project.tasks.withType(JavaCompile::class.java).first()
 		val args = javaCompile.options.compilerArgs
 
+		assertDependencyRegistered(project, "org.springframework.boot", "spring-boot-starter-web")
 		assertTrue(args.contains("-Ajcef.output.service.type=web"), "Should add web service type in development mode")
-		assertTrue(args.contains("-Ajcef.output.web.host=localhost"), "Should include development host")
+		assertTrue(args.contains("-Ajcef.output.web.host=http://localhost"), "Should include development host")
 		assertTrue(args.contains("-Ajcef.output.web.port=8080"), "Should include development port")
 		assertTrue(args.contains("-parameters"), "Should include -parameters flag")
 		assertTrue(args.any { it.startsWith("-Ajcef.output.path=") }, "Should configure output path")
+	}
+
+	private fun assertDependencyRegistered(project: ProjectInternal, group: String, name: String, scope: String = "implementation") {
+		val dependencies = project.configurations.getByName(scope).dependencies
+		assertTrue(
+			dependencies.any { dependency -> dependency.group == group && dependency.name == name },
+			"Expected $group:$name to be on the $scope configuration"
+		)
 	}
 }

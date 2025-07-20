@@ -1,5 +1,6 @@
 package io.github.bitfist.jcef.gradle
 
+import io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -50,7 +51,7 @@ abstract class JcefPlugin : Plugin<Project> {
 			it.buildInfo()
 		}
 
-		project.pluginManager.apply("io.spring.dependency-management")
+		project.pluginManager.apply(DependencyManagementPlugin::class.java)
 		project.extensions.configure(DependencyManagementExtension::class.java) { management ->
 			management.imports {
 				it.mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
@@ -59,6 +60,11 @@ abstract class JcefPlugin : Plugin<Project> {
 
 		project.dependencies.apply {
 			add("annotationProcessor", "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion")
+			project.afterEvaluate {
+				if (extension.developmentMode.get()) {
+					add("implementation", "org.springframework.boot:spring-boot-starter-web")
+				}
+			}
 		}
 	}
 
