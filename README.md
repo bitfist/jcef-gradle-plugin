@@ -23,7 +23,6 @@ Table of contents
   * [in build.gradle.kts](#-in-buildgradlekts)
 * [Configuration](#-configuration)
 * [Usage](#-usage)
-* [Example](#-example)
 
 ---
 
@@ -33,6 +32,8 @@ Table of contents
 - Manages dependencies via Spring Boot BOM
 - Adds JCEF and Spring Boot Starter dependencies
 - Configures Java compilation with TypeScript generation support
+- Adds Maven repository for `io.github.bitfist:jcef-spring-boot-starter`
+- In development mode: Configures the Gradle `bootRun` task
 
 ---
 
@@ -78,16 +79,16 @@ plugins {
 
 ## 🛠️ **Configuration**
 
-Configure the output path for generated TypeScript files:
+Configure the extension:
 
 ```kotlin
-jcef {
+springJcef {
 	typescriptOutputPath.set(file("$buildDir/generated/typescript"))
-	// turns on CEF query calls through REST
-	developmentMode.set(true)
-	// application host
-	developmentHost.set("localhost")
-	developmentPort.set(8080)
+	// enables communication through REST
+	enableWebCommunication {
+		backendUri = "http://localhost:8080" // default value; used by the generated TypeScript services
+		frontendUri = "http://localhost:3000" // default value; used to initialize the JCEF browser
+	}
 }
 ```
 
@@ -99,25 +100,15 @@ The plugin automatically:
 
 1. Applies and configures `java` and `org.springframework.boot` plugins
 2. Imports Spring Boot BOM for dependency management
-3. Adds dependencies:
+3. Adds Maven repository for `io.github.bitfist:jcef-spring-boot-starter`
+4. Adds dependencies:
 	- `io.github.bitfist:jcef-spring-boot-starter:<jcefVersion>`
+	 - In development mode: `org.springframework.boot:spring-boot-starter-web`
 	- Annotation processors for JCEF and Spring Boot
-4. Configures Java compilation with:
+5. Configures Java compilation with:
 	- `-Ajcef.output.path` pointing to your configured `typescriptOutputPath`
-	- `-Ajcef.output.service.type` indicating processing of method calls through `WEB` or `QUERY`
-	- `-Ajcef.output.web.host` indicating the host to call in the case of `jcef.output.service.type` being `WEB`
-	- `-Ajcef.output.web.port` indicating the port to call in the case of `jcef.output.service.type` being `WEB`
-
----
-
-## 💡 **Example**
-
-```kotlin
-plugins {
-	id("io.github.bitfist.jcef")
-}
-
-jcef {
-	typescriptOutputPath.set(file("$buildDir/generated/typescript"))
-}
-```
+	- `-Ajcef.web.communication.enabled` indicating processing of method calls through `WEB` or `QUERY`
+	- `-Ajcef.output.web.uri` indicating the host to call in the case of `jcef.web.communication.enabled` being `true`
+6. In development mode: configures Gradle task `bootRun` with properties:
+	- `jcef.development.enable-web-communication=true`
+	- `jcef.development.frontend-uri` with whatever you configured in the extension; default http://localhost:3000

@@ -9,6 +9,7 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.compile.JavaCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
+import org.springframework.boot.gradle.tasks.run.BootRun
 import java.net.URI
 import java.util.Properties
 
@@ -37,8 +38,11 @@ abstract class JcefPlugin : Plugin<Project> {
 	companion object {
 		const val JCEF_OUTPUT_PATH_OPTION: String = "jcef.output.path"
 		const val JCEF_WEB_COMMUNICATION_ENABLED_OPTION: String = "jcef.web.communication.enabled"
-		const val WEB_BACKEND_HOST_OPTION: String = "jcef.web.backend.host"
-		const val WEB_BACKEND_PORT_OPTION: String = "jcef.web.backend.port"
+		const val WEB_BACKEND_URI_OPTION: String = "jcef.web.backend.uri"
+
+		const val JVM_ARG_ENABLE_WEB_COMMUNICATION = "jcef.development.enable-web-communication"
+		const val JVM_ARG_WEB_FRONTEND_URI = "jcef.development.frontend-uri"
+
 		const val VERSION_PROPERTY_SPRING_BOOT = "springBoot"
 		const val VERSION_PROPERTY_SPRING_JCEF = "springJcef"
 	}
@@ -83,13 +87,20 @@ abstract class JcefPlugin : Plugin<Project> {
 		}
 
 		project.dependencies.apply {
-			add(
-				"annotationProcessor",
-				"org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion"
-			)
+			add("annotationProcessor", "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion")
 			project.afterEvaluate {
 				if (extension.webCommunication.isPresent) {
 					add("implementation", "org.springframework.boot:spring-boot-starter-web")
+				}
+			}
+		}
+		project.afterEvaluate {
+			if (extension.webCommunication.isPresent) {
+				project.tasks.withType(BootRun::class.java).configureEach { task ->
+					task.jvmArgs = listOf(
+						"-D$JVM_ARG_ENABLE_WEB_COMMUNICATION=true",
+						"-D$JVM_ARG_WEB_FRONTEND_URI=${extension.webCommunication.get().frontendUri}",
+					)
 				}
 			}
 		}
@@ -120,12 +131,7 @@ abstract class JcefPlugin : Plugin<Project> {
 			project.tasks.withType(JavaCompile::class.java).configureEach { compile ->
 				compile.options.encoding = "UTF-8"
 				if (extension.webCommunication.isPresent) {
-					compile.options.compilerArgs.addAll(
-						listOf(
-							"-A$WEB_BACKEND_HOST_OPTION=${extension.webCommunication.get().backendHost}",
-							"-A$WEB_BACKEND_PORT_OPTION=${extension.webCommunication.get().backendPort}",
-						)
-					)
+					compile.options.compilerArgs.add("-A$WEB_BACKEND_URI_OPTION=${extension.webCommunication.get().backendUri}")
 				}
 				compile.options.compilerArgs.addAll(
 					listOf(

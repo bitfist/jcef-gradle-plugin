@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
+import org.springframework.boot.gradle.tasks.run.BootRun
 
 @DisplayName("🛠️ JcefPlugin Configuration Tests")
 class JcefPluginTest {
@@ -99,14 +100,17 @@ class JcefPluginTest {
 		project.evaluate()
 
 		val javaCompile = project.tasks.withType(JavaCompile::class.java).first()
-		val args = javaCompile.options.compilerArgs
+		val compilerArgs = javaCompile.options.compilerArgs
 
 		assertDependencyRegistered(project, "org.springframework.boot", "spring-boot-starter-web")
-		assertTrue(args.contains("-A${JcefPlugin.JCEF_WEB_COMMUNICATION_ENABLED_OPTION}=true"), "Should add web service type in development mode")
-		assertTrue(args.contains("-A${JcefPlugin.WEB_BACKEND_HOST_OPTION}=http://localhost"), "Should include development host")
-		assertTrue(args.contains("-A${JcefPlugin.WEB_BACKEND_PORT_OPTION}=8080"), "Should include development port")
-		assertTrue(args.contains("-parameters"), "Should include -parameters flag")
-		assertTrue(args.any { it.startsWith("-Ajcef.output.path=") }, "Should configure output path")
+		assertTrue(compilerArgs.contains("-A${JcefPlugin.JCEF_WEB_COMMUNICATION_ENABLED_OPTION}=true"), "Should add web service type in development mode")
+		assertTrue(compilerArgs.contains("-A${JcefPlugin.WEB_BACKEND_URI_OPTION}=http://localhost:8080"), "Should include development host")
+		assertTrue(compilerArgs.contains("-parameters"), "Should include -parameters flag")
+		assertTrue(compilerArgs.any { it.startsWith("-A${JcefPlugin.JCEF_OUTPUT_PATH_OPTION}=") }, "Should configure output path")
+
+		val bootRun = project.tasks.withType(BootRun::class.java).first()
+		assertTrue(bootRun.jvmArgs?.contains("-D${JcefPlugin.JVM_ARG_ENABLE_WEB_COMMUNICATION}=true") ?: false, "Should add jvm arg for web communication")
+		assertTrue(bootRun.jvmArgs?.contains("-D${JcefPlugin.JVM_ARG_WEB_FRONTEND_URI}=${ext.webCommunication.get().frontendUri}") ?: false, "Should add jvm arg for web frontend uri")
 	}
 
 	private fun assertDependencyRegistered(project: ProjectInternal, group: String, name: String, scope: String = "implementation") {

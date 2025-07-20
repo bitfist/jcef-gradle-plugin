@@ -20,4 +20,7 @@ abstract class JcefExtension @Inject constructor(project: Project) {
 	}
 }
 
-data class WebCommunication(var backendHost: String = "http://localhost", var backendPort: Int = 8080)
+data class WebCommunication(
+	var backendUri: String = "http://localhost:8080",
+	var frontendUri: String = "http://localhost:3000"
+)
