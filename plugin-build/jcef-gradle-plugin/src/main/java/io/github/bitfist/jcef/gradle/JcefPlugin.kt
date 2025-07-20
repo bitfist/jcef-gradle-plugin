@@ -33,6 +33,15 @@ const val EXTENSION_NAME = "springJcef"
 @Suppress("UnnecessaryAbstractClass")
 abstract class JcefPlugin : Plugin<Project> {
 
+	companion object {
+		const val JCEF_OUTPUT_PATH_OPTION: String = "jcef.output.path"
+		const val JCEF_WEB_COMMUNICATION_ENABLED_OPTION: String = "jcef.web.communication.enabled"
+		const val WEB_BACKEND_HOST_OPTION: String = "jcef.web.backend.host"
+		const val WEB_BACKEND_PORT_OPTION: String = "jcef.web.backend.port"
+		const val VERSION_PROPERTY_SPRING_BOOT = "springBoot"
+		const val VERSION_PROPERTY_SPRING_JCEF = "springJcef"
+	}
+
 	private val versions = loadVersions()
 
 	override fun apply(project: Project) {
@@ -44,7 +53,7 @@ abstract class JcefPlugin : Plugin<Project> {
 	}
 
 	private fun configureSpringBoot(project: Project, extension: JcefExtension) {
-		val springBootVersion = versions.getProperty("springBoot") ?: throw GradleException("Property 'springBoot' not found in versions.properties")
+		val springBootVersion = versions.getProperty(VERSION_PROPERTY_SPRING_BOOT) ?: throw GradleException("Property '$VERSION_PROPERTY_SPRING_BOOT' not found in versions.properties")
 
 		project.pluginManager.apply(SpringBootPlugin::class.java)
 		project.extensions.configure(SpringBootExtension::class.java) {
@@ -61,7 +70,7 @@ abstract class JcefPlugin : Plugin<Project> {
 		project.dependencies.apply {
 			add("annotationProcessor", "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion")
 			project.afterEvaluate {
-				if (extension.developmentMode.get()) {
+				if (extension.webCommunication.isPresent) {
 					add("implementation", "org.springframework.boot:spring-boot-starter-web")
 				}
 			}
@@ -69,7 +78,7 @@ abstract class JcefPlugin : Plugin<Project> {
 	}
 
 	private fun configureSpringJcef(project: Project) {
-		val springJcefVersion = versions.getProperty("springJcef") ?: throw GradleException("Property 'springJcef' not found in versions.properties")
+		val springJcefVersion = versions.getProperty(VERSION_PROPERTY_SPRING_JCEF) ?: throw GradleException("Property '$VERSION_PROPERTY_SPRING_JCEF' not found in versions.properties")
 
 		project.dependencies.apply {
 			add("implementation", "io.github.bitfist:jcef-spring-boot-starter:$springJcefVersion")
@@ -90,21 +99,19 @@ abstract class JcefPlugin : Plugin<Project> {
 		project.afterEvaluate {
 			project.tasks.withType(JavaCompile::class.java).configureEach { compile ->
 				compile.options.encoding = "UTF-8"
-				if (extension.developmentMode.get()) {
+				if (extension.webCommunication.isPresent) {
 					compile.options.compilerArgs.addAll(
 						listOf(
-							"-Ajcef.output.service.type=web",
-							"-Ajcef.output.web.host=${extension.developmentHost.get()}",
-							"-Ajcef.output.web.port=${extension.developmentPort.get()}",
+							"-A$WEB_BACKEND_HOST_OPTION=${extension.webCommunication.get().backendHost}",
+							"-A$WEB_BACKEND_PORT_OPTION=${extension.webCommunication.get().backendPort}",
 						)
 					)
-				} else {
-					compile.options.compilerArgs.add("-Ajcef.output.service.type=query")
 				}
 				compile.options.compilerArgs.addAll(
 					listOf(
 						"-parameters",
-						"-Ajcef.output.path=${extension.typescriptOutputPath.get().asFile.absolutePath}"
+						"-A$JCEF_OUTPUT_PATH_OPTION=${extension.typescriptOutputPath.get().asFile.absolutePath}",
+						"-A$JCEF_WEB_COMMUNICATION_ENABLED_OPTION=${extension.webCommunication.isPresent}"
 					)
 				)
 			}

@@ -6,13 +6,18 @@ import org.gradle.api.provider.Property
 import javax.inject.Inject
 
 @Suppress("UnnecessaryAbstractClass")
-abstract class JcefExtension
-@Inject
-constructor(project: Project) {
+abstract class JcefExtension @Inject constructor(project: Project) {
 	private val objects = project.objects
 
 	val typescriptOutputPath: RegularFileProperty = objects.fileProperty()
-	val developmentMode: Property<Boolean> = objects.property(Boolean::class.java).convention(false)
-	val developmentHost: Property<String> = objects.property(String::class.java).convention("http://localhost")
-	val developmentPort: Property<Int> = objects.property(Int::class.java).convention(8080)
+	val webCommunication: Property<WebCommunication> = objects.property(WebCommunication::class.java).convention(null as WebCommunication?)
+
+	fun enableWebCommunication(modifier: WebCommunication.() -> Unit = {}) {
+		if (!webCommunication.isPresent) {
+			webCommunication.set(WebCommunication())
+		}
+		webCommunication.get().modifier()
+	}
 }
+
+data class WebCommunication(var backendHost: String = "http://localhost", var backendPort: Int = 8080)

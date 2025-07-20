@@ -77,7 +77,7 @@ class JcefPluginTest {
 		val javaCompile = project.tasks.withType(JavaCompile::class.java).first()
 		val args = javaCompile.options.compilerArgs
 
-		assertTrue(args.contains("-Ajcef.output.service.type=query"), "Should add query service type in production mode")
+		assertTrue(args.contains("-A${JcefPlugin.JCEF_WEB_COMMUNICATION_ENABLED_OPTION}=false"), "Should add query service type in production mode")
 		assertTrue(args.contains("-parameters"), "Should include -parameters flag")
 		assertTrue(args.any { it.startsWith("-Ajcef.output.path=") }, "Should configure output path")
 	}
@@ -91,7 +91,7 @@ class JcefPluginTest {
 
 		ext.typescriptOutputPath.set(project.layout.buildDirectory.asFile.get().resolve("generated-ts"))
 		// Enable developmentMode
-		ext.developmentMode.set(true)
+		ext.enableWebCommunication()
 
 		project.evaluate()
 
@@ -99,9 +99,9 @@ class JcefPluginTest {
 		val args = javaCompile.options.compilerArgs
 
 		assertDependencyRegistered(project, "org.springframework.boot", "spring-boot-starter-web")
-		assertTrue(args.contains("-Ajcef.output.service.type=web"), "Should add web service type in development mode")
-		assertTrue(args.contains("-Ajcef.output.web.host=http://localhost"), "Should include development host")
-		assertTrue(args.contains("-Ajcef.output.web.port=8080"), "Should include development port")
+		assertTrue(args.contains("-A${JcefPlugin.JCEF_WEB_COMMUNICATION_ENABLED_OPTION}=true"), "Should add web service type in development mode")
+		assertTrue(args.contains("-A${JcefPlugin.WEB_BACKEND_HOST_OPTION}=http://localhost"), "Should include development host")
+		assertTrue(args.contains("-A${JcefPlugin.WEB_BACKEND_PORT_OPTION}=8080"), "Should include development port")
 		assertTrue(args.contains("-parameters"), "Should include -parameters flag")
 		assertTrue(args.any { it.startsWith("-Ajcef.output.path=") }, "Should configure output path")
 	}
