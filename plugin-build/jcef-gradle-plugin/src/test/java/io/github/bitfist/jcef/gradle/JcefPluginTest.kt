@@ -16,7 +16,10 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 class JcefPluginTest {
 
 	private fun buildProject(): ProjectInternal {
-		return ProjectBuilder.builder().build() as ProjectInternal
+		val project = ProjectBuilder.builder().build() as ProjectInternal
+		project.extensions.extraProperties.set("GPR_USER", "test")
+		project.extensions.extraProperties.set("GPR_KEY", "test")
+		return project
 	}
 
 	@Test

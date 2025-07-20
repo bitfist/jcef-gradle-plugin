@@ -9,6 +9,7 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.compile.JavaCompile
 import org.springframework.boot.gradle.dsl.SpringBootExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
+import java.net.URI
 import java.util.Properties
 
 /**
@@ -53,7 +54,8 @@ abstract class JcefPlugin : Plugin<Project> {
 	}
 
 	private fun configureSpringBoot(project: Project, extension: JcefExtension) {
-		val springBootVersion = versions.getProperty(VERSION_PROPERTY_SPRING_BOOT) ?: throw GradleException("Property '$VERSION_PROPERTY_SPRING_BOOT' not found in versions.properties")
+		val springBootVersion = versions.getProperty(VERSION_PROPERTY_SPRING_BOOT)
+			?: throw GradleException("Property '$VERSION_PROPERTY_SPRING_BOOT' not found in versions.properties")
 
 		project.pluginManager.apply(SpringBootPlugin::class.java)
 		project.extensions.configure(SpringBootExtension::class.java) {
@@ -67,8 +69,24 @@ abstract class JcefPlugin : Plugin<Project> {
 			}
 		}
 
+		project.repositories.maven { repository ->
+			repository.name = "jcef-spring-boot-starter"
+			repository.url = URI("https://maven.pkg.github.com/bitfist/jcef-spring-boot-starter")
+			repository.credentials { credentials ->
+				credentials.username = project.findProperty("GPR_USER") as String?
+					?: System.getenv("GITHUB_ACTOR")
+						?: throw IllegalArgumentException("GPR_USER and GITHUB_ACTOR not set")
+				credentials.password = project.findProperty("GPR_KEY") as String?
+					?: System.getenv("GITHUB_TOKEN")
+						?: throw IllegalArgumentException("GPR_KEY and GITHUB_TOKEN not set")
+			}
+		}
+
 		project.dependencies.apply {
-			add("annotationProcessor", "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion")
+			add(
+				"annotationProcessor",
+				"org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion"
+			)
 			project.afterEvaluate {
 				if (extension.webCommunication.isPresent) {
 					add("implementation", "org.springframework.boot:spring-boot-starter-web")
@@ -78,7 +96,8 @@ abstract class JcefPlugin : Plugin<Project> {
 	}
 
 	private fun configureSpringJcef(project: Project) {
-		val springJcefVersion = versions.getProperty(VERSION_PROPERTY_SPRING_JCEF) ?: throw GradleException("Property '$VERSION_PROPERTY_SPRING_JCEF' not found in versions.properties")
+		val springJcefVersion = versions.getProperty(VERSION_PROPERTY_SPRING_JCEF)
+			?: throw GradleException("Property '$VERSION_PROPERTY_SPRING_JCEF' not found in versions.properties")
 
 		project.dependencies.apply {
 			add("implementation", "io.github.bitfist:jcef-spring-boot-starter:$springJcefVersion")
@@ -88,7 +107,8 @@ abstract class JcefPlugin : Plugin<Project> {
 
 	private fun loadVersions(): Properties {
 		val props = Properties()
-		val resourceStream = javaClass.classLoader.getResourceAsStream("versions.properties") ?: throw GradleException("versions.properties not found in classpath")
+		val resourceStream = javaClass.classLoader.getResourceAsStream("versions.properties")
+			?: throw GradleException("versions.properties not found in classpath")
 		resourceStream.use { props.load(it) }
 		return props
 	}
