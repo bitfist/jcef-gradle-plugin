@@ -31,25 +31,24 @@ const val EXTENSION_NAME = "springJcef"
 
 @Suppress("UnnecessaryAbstractClass")
 abstract class JcefPlugin : Plugin<Project> {
+
+	private val versions = loadVersions()
+
 	override fun apply(project: Project) {
 		val extension = project.extensions.create(EXTENSION_NAME, JcefExtension::class.java, project)
-		applyPlugins(project)
-		applyDependencyManagement(project)
-		addDependencies(project)
+
 		configureJava(project, extension)
+		configureSpringBoot(project, extension)
+		configureSpringJcef(project)
 	}
 
-	private fun applyPlugins(project: Project) {
-		project.pluginManager.apply(JavaPlugin::class.java)
+	private fun configureSpringBoot(project: Project, extension: JcefExtension) {
+		val springBootVersion = versions.getProperty("springBoot") ?: throw GradleException("Property 'springBoot' not found in versions.properties")
+
 		project.pluginManager.apply(SpringBootPlugin::class.java)
 		project.extensions.configure(SpringBootExtension::class.java) {
 			it.buildInfo()
 		}
-	}
-
-	private fun applyDependencyManagement(project: Project) {
-		val versions = loadVersions()
-		val springBootVersion = versions.getProperty("springBoot") ?: throw GradleException("Property 'springBoot' not found in versions.properties")
 
 		project.pluginManager.apply("io.spring.dependency-management")
 		project.extensions.configure(DependencyManagementExtension::class.java) { management ->
@@ -57,17 +56,18 @@ abstract class JcefPlugin : Plugin<Project> {
 				it.mavenBom("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
 			}
 		}
+
+		project.dependencies.apply {
+			add("annotationProcessor", "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion")
+		}
 	}
 
-	private fun addDependencies(project: Project) {
-		val versions = loadVersions()
+	private fun configureSpringJcef(project: Project) {
 		val springJcefVersion = versions.getProperty("springJcef") ?: throw GradleException("Property 'springJcef' not found in versions.properties")
-		val springBootVersion = versions.getProperty("springBoot") ?: throw GradleException("Property 'springBoot' not found in versions.properties")
 
 		project.dependencies.apply {
 			add("implementation", "io.github.bitfist:jcef-spring-boot-starter:$springJcefVersion")
 			add("annotationProcessor", "io.github.bitfist:jcef-spring-boot-starter:$springJcefVersion")
-			add("annotationProcessor", "org.springframework.boot:spring-boot-autoconfigure-processor:$springBootVersion")
 		}
 	}
 
@@ -79,6 +79,8 @@ abstract class JcefPlugin : Plugin<Project> {
 	}
 
 	private fun configureJava(project: Project, extension: JcefExtension) {
+		project.pluginManager.apply(JavaPlugin::class.java)
+
 		project.afterEvaluate {
 			project.tasks.withType(JavaCompile::class.java).configureEach { compile ->
 				compile.options.encoding = "UTF-8"
