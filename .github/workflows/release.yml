@@ -7,6 +7,7 @@ on:
 
 env:
   GPR_KEY: ${{ secrets.GPR_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   release:
@@ -52,8 +53,6 @@ jobs:
 
       - name: Create release tag & changelog
         if: env.is_released == 'false'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew :plugin-build:jcef-gradle-plugin:releaseVersion --no-commit
           git push origin --tags
@@ -61,16 +60,12 @@ jobs:
 
       - name: Build JAR
         if: env.is_released == 'false'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew :plugin-build:jcef-gradle-plugin:clean
           ./gradlew :plugin-build:jcef-gradle-plugin:build :plugin-build:jcef-gradle-plugin:jar -x test
 
       - name: Publish Maven artifacts to GitHub Packages
         if: env.is_released == 'false'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :plugin-build:jcef-gradle-plugin:publishAllPublicationsToGitHubPackagesRepository
 
       - name: Create GitHub release
