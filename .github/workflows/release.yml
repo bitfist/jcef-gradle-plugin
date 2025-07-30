@@ -1,7 +1,9 @@
-name: 'release'
+name: release
+
 on:
-  push:
-    branches: [ "release" ]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch: {}
 
 env:
   GPR_KEY: ${{ secrets.GPR_KEY }}
@@ -12,46 +14,68 @@ jobs:
     permissions:
       contents: write
       packages: write
+
     steps:
-      # Setup
       - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           fetch-depth: 0
+
+      - name: Determine if HEAD is SemVer‐tagged
+        id: check_tag
+        run: |
+          if git tag --points-at HEAD | grep -Eq '^?[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "is_released=true" >> $GITHUB_ENV
+          else
+            echo "is_released=false" >> $GITHUB_ENV
+          fi
+
       - name: Set up JDK 21
+        if: env.is_released == 'false'
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'liberica'
+
       - name: Setup Gradle
+        if: env.is_released == 'false'
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: false
-      # Job
+
       - name: Run tests
+        if: env.is_released == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :plugin-build:jcef-gradle-plugin:test
+
       - name: Create release tag & changelog
+        if: env.is_released == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew :plugin-build:jcef-gradle-plugin:releaseVersion --no-commit
           git push origin --tags
           echo "RELEASE_VERSION=$(git tag --points-at HEAD)" >> $GITHUB_ENV
+
       - name: Build JAR
+        if: env.is_released == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew :plugin-build:jcef-gradle-plugin:clean
           ./gradlew :plugin-build:jcef-gradle-plugin:build :plugin-build:jcef-gradle-plugin:jar -x test
+
       - name: Publish Maven artifacts to GitHub Packages
+        if: env.is_released == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :plugin-build:jcef-gradle-plugin:publishAllPublicationsToGitHubPackagesRepository
+
       - name: Create GitHub release
+        if: env.is_released == 'false'
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "plugin-build/jcef-gradle-plugin/build/libs/*.jar"
+          artifacts: 'plugin-build/jcef-gradle-plugin/build/libs/*.jar'
           tag: ${{ env.RELEASE_VERSION }}
