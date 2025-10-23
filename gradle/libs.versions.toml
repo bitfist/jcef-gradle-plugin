@@ -3,7 +3,7 @@ springBoot = "3.5.6"
 springJcef = "0.10.17"
 
 [plugins]
-kotlin = { id = "org.jetbrains.kotlin.jvm",  version = "2.2.20" }
+kotlin = { id = "org.jetbrains.kotlin.jvm",  version = "2.2.21" }
 
 [libraries]
 plugin-dependencyManagement = { module = "io.spring.dependency-management:io.spring.dependency-management.gradle.plugin", version     = "1.1.7"      }
