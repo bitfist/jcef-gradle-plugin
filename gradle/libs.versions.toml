@@ -1,6 +1,6 @@
 [versions]
 springBoot = "3.5.7"
-springJcef = "0.10.21"
+springJcef = "0.10.22"
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm",  version = "2.2.21" }
