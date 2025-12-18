@@ -1,5 +1,5 @@
 [versions]
-springBoot = "4.0.0"
+springBoot = "4.0.1"
 springJcef = "0.10.31"
 
 [plugins]
